@@ -49,6 +49,12 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Fullscreen Location Picker -->
+        <activity
+            android:name=".MapPickerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Profile Activity -->
         <activity
             android:name=".ProfileActivity"

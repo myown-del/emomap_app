@@ -4,11 +4,10 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.view.Menu
 import android.view.View
 import android.widget.SeekBar
 import android.widget.Toast
@@ -33,6 +32,24 @@ class MainActivity : BaseActivity() {
     private lateinit var mapController: IMapController
     private var selectedLocation: GeoPoint? = null
     private var currentRating = 5
+
+    private val mapPickerRequest = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        val data = result.data ?: return@registerForActivityResult
+        if (result.resultCode != RESULT_OK) return@registerForActivityResult
+
+        val latitude = data.getDoubleExtra(MapPickerActivity.EXTRA_LATITUDE, Double.NaN)
+        val longitude = data.getDoubleExtra(MapPickerActivity.EXTRA_LONGITUDE, Double.NaN)
+        if (latitude.isNaN() || longitude.isNaN()) return@registerForActivityResult
+
+        val chosenPoint = GeoPoint(latitude, longitude)
+        selectedLocation = chosenPoint
+        mapController.setCenter(chosenPoint)
+        mapController.setZoom(15.0)
+        addMarker(chosenPoint)
+        binding.layoutLocationOverlay.visibility = View.GONE
+    }
     
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -76,14 +93,38 @@ class MainActivity : BaseActivity() {
     
     override fun setupToolbar() {
         setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean = false
     
     private fun setupUI() {
+        binding.btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
         setupEmotionFaces()
         setupRatingSlider()
+        setupMapPickerEntry()
         setupLocationButton()
         setupSaveButton()
         setupBottomNavigation()
+        updateEmotionFaceBasedOnRating(currentRating)
+    }
+
+    private fun setupMapPickerEntry() {
+        binding.mapPreviewContainer.setOnClickListener {
+            openMapPicker()
+        }
+    }
+
+    private fun openMapPicker() {
+        val intent = Intent(this, MapPickerActivity::class.java).apply {
+            selectedLocation?.let { point ->
+                putExtra(MapPickerActivity.EXTRA_LATITUDE, point.latitude)
+                putExtra(MapPickerActivity.EXTRA_LONGITUDE, point.longitude)
+            }
+        }
+        mapPickerRequest.launch(intent)
     }
     
     private fun setupEmotionFaces() {
@@ -161,7 +202,7 @@ class MainActivity : BaseActivity() {
     
     private fun setupLocationButton() {
         binding.btnChooseLocation.setOnClickListener {
-            requestLocationPermission()
+            openMapPicker()
         }
     }
     
@@ -201,20 +242,14 @@ class MainActivity : BaseActivity() {
         mapController.setZoom(10.0)
         mapController.setCenter(startPoint)
         
-        // Enable zoom controls
-        mapView.setBuiltInZoomControls(true)
-        mapView.setMultiTouchControls(true)
-        
-        // Set map click listener
+        // Preview-only mini map. Tap opens full-screen picker.
+        mapView.setBuiltInZoomControls(false)
+        mapView.setMultiTouchControls(false)
         mapView.setOnTouchListener { _, event ->
             if (event.action == android.view.MotionEvent.ACTION_UP) {
-                val projection = mapView.projection
-                val geoPoint = projection.fromPixels(event.x.toInt(), event.y.toInt()) as GeoPoint
-                selectedLocation = geoPoint
-                addMarker(geoPoint)
-                binding.layoutLocationOverlay.visibility = View.GONE
+                openMapPicker()
             }
-            false
+            true
         }
     }
     
@@ -348,4 +383,4 @@ class MainActivity : BaseActivity() {
         super.onPause()
         mapView.onPause()
     }
-} 
+}

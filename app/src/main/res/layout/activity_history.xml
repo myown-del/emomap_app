@@ -190,8 +190,10 @@
         android:layout_gravity="bottom"
         android:background="@color/background_white"
         app:elevation="8dp"
-        app:itemIconTint="@color/bottom_nav_color"
+        app:itemIconSize="32dp"
+        app:itemIconTint="@null"
         app:itemTextColor="@color/bottom_nav_color"
+        app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_navigation" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout> 

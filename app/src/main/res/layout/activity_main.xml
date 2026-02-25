@@ -7,24 +7,69 @@
     android:background="@color/background_light"
     tools:context=".MainActivity">
 
-    <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background_white"
         app:elevation="0dp">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="88dp"
             android:background="@color/background_white"
-            app:title="ЭмоМап"
-            app:titleTextColor="@color/primary_blue" />
+            android:minHeight="?attr/actionBarSize"
+            android:paddingStart="20dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="20dp"
+            android:paddingBottom="14dp"
+            app:contentInsetStart="0dp"
+            app:contentInsetStartWithNavigation="0dp"
+            app:title="">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="37dp"
+                        android:contentDescription="@string/app_name"
+                        android:src="@drawable/ic_main_icon" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="10dp"
+                        android:text="@string/app_name"
+                        android:textColor="@color/text_primary"
+                        android:textSize="28sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <ImageButton
+                    android:id="@+id/btnProfile"
+                    android:layout_width="43dp"
+                    android:layout_height="43dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/nav_profile"
+                    android:padding="0dp"
+                    android:src="@drawable/ic_user_profile" />
+            </LinearLayout>
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content -->
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -35,291 +80,199 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="24dp"
+            android:paddingTop="20dp"
+            android:paddingEnd="24dp"
+            android:paddingBottom="96dp">
 
-            <!-- Mood Question -->
             <TextView
                 android:id="@+id/tvMoodQuestion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="32dp"
+                android:layout_marginBottom="18dp"
                 android:gravity="center"
                 android:text="@string/mood_question"
                 android:textColor="@color/text_primary"
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
-            <!-- Emotion Faces Card -->
-            <androidx.cardview.widget.CardView
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/background_white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:weightSum="3">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/layoutSadFace"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:focusable="true"
+                    android:gravity="center"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="10dp">
 
-                    <!-- Emotion Faces -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:gravity="center"
-                        android:orientation="horizontal"
-                        android:weightSum="3">
-
-                        <!-- Sad Face -->
-                        <LinearLayout
-                            android:id="@+id/layoutSadFace"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:id="@+id/tvSadFace"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:background="@drawable/emotion_face_background"
-                                android:backgroundTint="@color/error_red"
-                                android:gravity="center"
-                                android:text="☹️"
-                                android:textSize="32sp" />
-
-                        </LinearLayout>
-
-                        <!-- Neutral Face -->
-                        <LinearLayout
-                            android:id="@+id/layoutNeutralFace"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:id="@+id/tvNeutralFace"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:background="@drawable/emotion_face_background"
-                                android:backgroundTint="@color/warning_orange"
-                                android:gravity="center"
-                                android:text="😐"
-                                android:textSize="32sp" />
-
-                        </LinearLayout>
-
-                        <!-- Happy Face -->
-                        <LinearLayout
-                            android:id="@+id/layoutHappyFace"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:background="?android:attr/selectableItemBackgroundBorderless"
-                            android:clickable="true"
-                            android:focusable="true"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="16dp">
-
-                            <TextView
-                                android:id="@+id/tvHappyFace"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"
-                                android:background="@drawable/emotion_face_background"
-                                android:backgroundTint="@color/success_green"
-                                android:gravity="center"
-                                android:text="😊"
-                                android:textSize="32sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <!-- Rating Slider -->
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        android:orientation="vertical">
-
-                        <SeekBar
-                            android:id="@+id/seekBarRating"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:max="10"
-                            android:min="1"
-                            android:progress="5"
-                            android:progressTint="@color/primary_blue"
-                            android:thumbTint="@color/primary_blue" />
-
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="1"
-                                android:textAlignment="textStart"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
-
-                            <TextView
-                                android:id="@+id/tvRatingValue"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="5"
-                                android:textAlignment="center"
-                                android:textColor="@color/primary_blue"
-                                android:textSize="16sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="10"
-                                android:textAlignment="textEnd"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="12sp" />
-
-                        </LinearLayout>
-
-                    </LinearLayout>
-
-                    <!-- Comment Input -->
-                    <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/tilComment"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="24dp"
-                        app:boxStrokeColor="@color/primary_blue"
-                        app:hintTextColor="@color/primary_blue"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                        <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/etComment"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/add_comment"
-                            android:inputType="textMultiLine"
-                            android:lines="3"
-                            android:maxLines="5"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp" />
-
-                    </com.google.android.material.textfield.TextInputLayout>
+                    <ImageView
+                        android:id="@+id/tvSadFace"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:contentDescription="@string/emotion_sad"
+                        android:src="@drawable/ic_emotion_sad" />
 
                 </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
-            <!-- Map Card -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="24dp"
-                app:cardBackgroundColor="@color/background_white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="4dp">
 
                 <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/layoutNeutralFace"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
-                    <!-- Map View -->
-                    <FrameLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="200dp">
-
-                        <org.osmdroid.views.MapView
-                            android:id="@+id/mapView"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent" />
-
-                        <!-- Location Overlay -->
-                        <LinearLayout
-                            android:id="@+id/layoutLocationOverlay"
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:background="@color/background_white"
-                            android:gravity="center"
-                            android:orientation="vertical"
-                            android:padding="24dp"
-                            android:visibility="visible">
-
-                            <ImageView
-                                android:layout_width="48dp"
-                                android:layout_height="48dp"
-                                android:layout_marginBottom="16dp"
-                                android:src="@drawable/ic_location"
-                                android:tint="@color/primary_blue" />
-
-                            <TextView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="@string/select_location_on_map"
-                                android:textAlignment="center"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="14sp" />
-
-                        </LinearLayout>
-
-                    </FrameLayout>
-
-                    <!-- Location Button -->
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnChooseLocation"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_margin="16dp"
-                        android:text="@string/choose_location"
-                        android:textColor="@color/primary_blue"
-                        app:backgroundTint="@color/background_white"
-                        app:cornerRadius="8dp"
-                        app:strokeColor="@color/primary_blue"
-                        app:strokeWidth="1dp"
-                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                    <ImageView
+                        android:id="@+id/tvNeutralFace"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:contentDescription="@string/emotion_neutral"
+                        android:src="@drawable/ic_emotion_ok" />
 
                 </LinearLayout>
 
-            </androidx.cardview.widget.CardView>
+                <LinearLayout
+                    android:id="@+id/layoutHappyFace"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
 
-            <!-- Save Button -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveEmotion"
+                    <ImageView
+                        android:id="@+id/tvHappyFace"
+                        android:layout_width="38dp"
+                        android:layout_height="38dp"
+                        android:contentDescription="@string/emotion_happy"
+                        android:src="@drawable/ic_emotion_happy" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <SeekBar
+                android:id="@+id/seekBarRating"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginBottom="80dp"
-                android:text="@string/save_emotion"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:max="10"
+                android:min="1"
+                android:progress="5"
+                android:progressTint="@color/primary_blue"
+                android:thumbTint="@color/primary_blue" />
+
+            <TextView
+                android:id="@+id/tvRatingValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:gravity="center"
+                android:text="5"
+                android:textColor="@color/text_primary"
+                android:textSize="16sp" />
+
+            <EditText
+                android:id="@+id/etComment"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/comment_input_background"
+                android:gravity="top|start"
+                android:hint="@string/add_comment"
+                android:paddingStart="14dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="14dp"
+                android:paddingBottom="10dp"
+                android:textColor="@color/text_primary"
+                android:textColorHint="@color/text_hint"
+                android:textSize="17sp" />
+
+            <FrameLayout
+                android:id="@+id/mapPreviewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginTop="12dp"
+                android:background="@color/background_white">
+
+                <org.osmdroid.views.MapView
+                    android:id="@+id/mapView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <LinearLayout
+                    android:id="@+id/layoutLocationOverlay"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="#88FFFFFF"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="24dp"
+                    android:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:layout_marginBottom="10dp"
+                        android:src="@drawable/ic_location"
+                        android:tint="@color/primary_blue" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/select_location_on_map"
+                        android:textColor="@color/text_secondary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </FrameLayout>
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnChooseLocation"
+                android:layout_width="290dp"
+                android:layout_height="58dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="18dp"
+                android:text="@string/choose_location"
                 android:textColor="@color/text_white"
-                android:textSize="16sp"
-                android:textStyle="bold"
+                android:textSize="17sp"
                 app:backgroundTint="@color/primary_blue"
                 app:cornerRadius="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveEmotion"
+                android:layout_width="1dp"
+                android:layout_height="1dp"
+                android:visibility="gone" />
 
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
-    <!-- Progress Bar -->
     <ProgressBar
         android:id="@+id/progressBar"
         android:layout_width="wrap_content"
@@ -328,15 +281,16 @@
         android:indeterminateTint="@color/primary_blue"
         android:visibility="gone" />
 
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:background="@color/background_white"
-        app:itemIconTint="@color/primary_blue"
-        app:itemTextColor="@color/primary_blue"
+        app:itemIconSize="32dp"
+        app:itemIconTint="@null"
+        app:itemTextColor="@color/bottom_nav_item_tint"
+        app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_navigation" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout> 
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
