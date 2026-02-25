@@ -1,249 +1,243 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light">
 
-    <!-- App Bar -->
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background_white"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/background_white"
-            app:title="ЭмоМап"
-            app:titleTextColor="@color/primary_blue" />
+                <include android:id="@+id/topBar" layout="@layout/view_top_bar" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Main Content -->
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <!-- Filters Section -->
+        <org.osmdroid.views.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/background_white"
-            android:elevation="4dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginEnd="12dp"
+            android:background="@drawable/filter_panel_background"
+            android:elevation="6dp"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="12dp">
 
-            <!-- Date Filter and Filter Button -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:orientation="horizontal">
 
-                <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/tilDateFilter"
+                <EditText
+                    android:id="@+id/etDateFilter"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="12dp"
-                    android:layout_weight="1"
-                    app:boxStrokeColor="@color/primary_blue"
-                    app:hintTextColor="@color/primary_blue"
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
-
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/etDateFilter"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Выбери дату"
-                        android:focusable="false"
-                        android:clickable="true"
-                        android:drawableStart="@drawable/ic_calendar"
-                        android:drawablePadding="8dp"
-                        android:textColor="@color/text_primary"
-                        android:textSize="14sp" />
-
-                </com.google.android.material.textfield.TextInputLayout>
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1.45"
+                    android:background="@drawable/filter_input_background"
+                    android:clickable="true"
+                    android:drawableStart="@drawable/ic_calendar"
+                    android:drawablePadding="8dp"
+                    android:focusable="false"
+                    android:gravity="center_vertical"
+                    android:hint="Выбери дату"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:textColor="@color/text_primary"
+                    android:textColorHint="@color/text_hint"
+                    android:textSize="14sp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnFilter"
-                    android:layout_width="wrap_content"
-                    android:layout_height="56dp"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:minWidth="112dp"
+                    android:background="@drawable/filter_button_background"
                     android:text="Фильтровать"
-                    android:textColor="@color/text_white"
-                    android:textSize="14sp"
-                    app:backgroundTint="@color/primary_blue"
-                    app:cornerRadius="8dp" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="10dp" />
 
             </LinearLayout>
 
-            <!-- Emotion Type Filters -->
             <com.google.android.material.chip.ChipGroup
                 android:id="@+id/chipGroupEmotions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:singleSelection="true"
-                app:checkedChip="@id/chipAllEmotions">
+                app:checkedChip="@id/chipAllEmotions"
+                app:chipSpacingHorizontal="8dp"
+                app:chipSpacingVertical="8dp"
+                app:singleLine="true"
+                app:singleSelection="true">
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAllEmotions"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Все эмоции"
+                    android:layout_height="48dp"
                     android:checkable="true"
                     android:checked="true"
+                    android:minWidth="128dp"
+                    android:text="Все эмоции"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@color/primary_blue"
+                    app:chipCornerRadius="10dp"
+                    app:chipMinHeight="48dp"
+                    app:chipStrokeColor="@color/text_primary"
                     app:chipStrokeWidth="1dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipHappy"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Счастье"
+                    android:layout_height="48dp"
                     android:checkable="true"
+                    android:minWidth="94dp"
+                    android:text="Счастье"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@color/success_green"
+                    app:chipCornerRadius="10dp"
+                    app:chipMinHeight="48dp"
+                    app:chipStrokeColor="@color/text_primary"
                     app:chipStrokeWidth="1dp" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipNeutral"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Нейтрально"
                     android:checkable="true"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@color/warning_orange"
-                    app:chipStrokeWidth="1dp" />
+                    android:text="Нейтрально"
+                    android:visibility="gone" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSad"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Грусть"
+                    android:layout_height="48dp"
                     android:checkable="true"
+                    android:minWidth="82dp"
+                    android:text="Грусть"
+                    android:textColor="@color/text_primary"
+                    android:textSize="13sp"
                     app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipStrokeColor="@color/error_red"
+                    app:chipCornerRadius="10dp"
+                    app:chipMinHeight="48dp"
+                    app:chipStrokeColor="@color/text_primary"
                     app:chipStrokeWidth="1dp" />
 
             </com.google.android.material.chip.ChipGroup>
 
         </LinearLayout>
 
-        <!-- Map Container -->
-        <FrameLayout
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardEmotionDetails"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="80dp"
+            android:maxHeight="200dp"
+            android:visibility="gone"
+            app:cardBackgroundColor="@color/background_white"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-            <org.osmdroid.views.MapView
-                android:id="@+id/mapView"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
-            <!-- Loading Progress -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:visibility="gone" />
-
-            <!-- Emotion Details Bottom Sheet - Overlaying the map -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardEmotionDetails"
+            <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
-                android:visibility="gone"
-                app:cardBackgroundColor="@color/background_white"
-                app:cardCornerRadius="16dp"
-                app:cardElevation="8dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="16dp"
-                android:layout_marginBottom="80dp"
-                android:maxHeight="200dp">
+                android:fillViewport="true">
 
-                <ScrollView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fillViewport="true">
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tvEmotionLocation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:drawableStart="@drawable/ic_map"
+                        android:drawablePadding="8dp"
+                        android:ellipsize="end"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        android:text="Загородный проспект 21-23"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="20dp">
+                        android:layout_marginBottom="8dp"
+                        android:orientation="horizontal">
 
                         <TextView
-                            android:id="@+id/tvEmotionLocation"
-                            android:layout_width="match_parent"
+                            android:id="@+id/tvEmotionRating"
+                            android:layout_width="0dp"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="12dp"
-                            android:text="Загородный проспект 21-23"
+                            android:layout_weight="1"
+                            android:text="Настроение: 7/10"
                             android:textColor="@color/text_primary"
                             android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:drawableStart="@drawable/ic_map"
-                            android:drawablePadding="8dp"
-                            android:gravity="center_vertical"
-                            android:maxLines="2"
-                            android:ellipsize="end" />
+                            android:textStyle="bold" />
 
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:layout_marginBottom="8dp">
-
-                            <TextView
-                                android:id="@+id/tvEmotionRating"
-                                android:layout_width="0dp"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="Настроение: 7/10"
-                                android:textColor="@color/text_primary"
-                                android:textSize="14sp"
-                                android:textStyle="bold" />
-
-                            <TextView
-                                android:id="@+id/tvEmotionDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Дата: 2023-10-12"
-                                android:textColor="@color/text_secondary"
-                                android:textSize="11sp" />
-
-                        </LinearLayout>
-
-                        <!-- Comment Section -->
                         <TextView
-                            android:id="@+id/tvEmotionComment"
-                            android:layout_width="match_parent"
+                            android:id="@+id/tvEmotionDate"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:text="💬 Ждал девушку на первом свидании"
-                            android:textColor="@color/text_primary"
-                            android:textSize="14sp"
-                            android:background="@color/background_light"
-                            android:padding="12dp"
-                            android:lineSpacingExtra="2dp"
-                            app:cornerRadius="8dp" />
+                            android:text="Дата: 2023-10-12"
+                            android:textColor="@color/text_secondary"
+                            android:textSize="11sp" />
 
                     </LinearLayout>
 
-                </ScrollView>
+                    <TextView
+                        android:id="@+id/tvEmotionComment"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:background="@color/background_light"
+                        android:lineSpacingExtra="2dp"
+                        android:padding="12dp"
+                        android:text="Ждал девушку на первом свидании"
+                        android:textColor="@color/text_primary"
+                        android:textSize="14sp"
+                        app:cornerRadius="8dp" />
 
-            </androidx.cardview.widget.CardView>
+                </LinearLayout>
 
-        </FrameLayout>
+            </ScrollView>
 
-    </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
-    <!-- Bottom Navigation -->
+    </FrameLayout>
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
@@ -257,4 +251,5 @@
         app:labelVisibilityMode="unlabeled"
         app:menu="@menu/bottom_navigation" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout> 
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+

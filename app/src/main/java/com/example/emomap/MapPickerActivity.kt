@@ -54,9 +54,11 @@ class MapPickerActivity : BaseActivity() {
     }
 
     override fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding.toolbar.setNavigationOnClickListener { finish() }
+        setSupportActionBar(binding.topBar.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
+        binding.topBar.btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
     }
 
     private fun setupMap() {

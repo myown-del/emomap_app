@@ -54,10 +54,14 @@ class MapActivity : BaseActivity() {
     }
     
     override fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding.topBar.toolbar)
+        supportActionBar?.setDisplayShowTitleEnabled(false)
     }
     
     private fun setupUI() {
+        binding.topBar.btnProfile.setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
         setupBottomNavigation()
         setupFilterControls()
         loadEmotions()

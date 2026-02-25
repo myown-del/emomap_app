@@ -92,14 +92,14 @@ class MainActivity : BaseActivity() {
     }
     
     override fun setupToolbar() {
-        setSupportActionBar(binding.toolbar)
+        setSupportActionBar(binding.topBar.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean = false
     
     private fun setupUI() {
-        binding.btnProfile.setOnClickListener {
+        binding.topBar.btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
         }
         setupEmotionFaces()

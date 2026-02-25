@@ -8,15 +8,10 @@
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/background_white"
         app:elevation="0dp">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/background_white"
-            app:title="@string/choose_location"
-            app:titleTextColor="@color/primary_blue" />
+                <include android:id="@+id/topBar" layout="@layout/view_top_bar" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -86,3 +81,5 @@
     </FrameLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
