@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:orientation="horizontal"
+    android:padding="16dp"
+    android:background="@drawable/rounded_background"
+    android:backgroundTint="@color/background_white">
+
+    <!-- Emotion Circle -->
+    <TextView
+        android:id="@+id/tvEmotionCircle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/emotion_face_background"
+        android:gravity="center"
+        android:text="😊"
+        android:textSize="20sp" />
+
+    <!-- Emotion Info -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvEmotionDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Настроение: 9, Парк 300-летия"
+            android:textColor="@color/text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvEmotionDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Oct 21, 2023 · 15:00"
+            android:textColor="@color/text_secondary"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+</LinearLayout> 

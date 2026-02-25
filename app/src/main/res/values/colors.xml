@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- EmoMap Theme Colors -->
+    <color name="primary_blue">#3F51B5</color>
+    <color name="primary_blue_dark">#303F9F</color>
+    <color name="primary_blue_light">#C5CAE9</color>
+    <color name="accent_blue">#2196F3</color>
+    <color name="accent_blue_dark">#1976D2</color>
+    
+    <!-- Background Colors -->
+    <color name="background_light">#F5F5F5</color>
+    <color name="background_white">#FFFFFF</color>
+    <color name="card_background">#FAFAFA</color>
+    <color name="surface_variant">#E0E0E0</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_hint">#BDBDBD</color>
+    <color name="text_white">#FFFFFF</color>
+    
+    <!-- Status Colors -->
+    <color name="error_red">#F44336</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="status_offline">#9E9E9E</color>
+    <color name="status_online">#4CAF50</color>
+    <color name="status_busy">#FF9800</color>
+    
+    <!-- Legacy colors -->
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- Chip Colors -->
+    <color name="chip_background_default">#F5F5F5</color>
+    <color name="chip_selected">#E3F2FD</color>
+    
+    <!-- Bottom Navigation Colors -->
+    <color name="bottom_nav_color">@color/primary_blue</color>
+</resources>

@@ -1,0 +1,827 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Emomap API",
+      "version": "0.1.0"
+    },
+    "paths": {
+      "/api/users/me/profile": {
+        "get": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Get Current User Profile",
+          "description": "Get the full profile of the currently logged in user",
+          "operationId": "get_current_user_profile_api_users_me_profile_get",
+          "parameters": [
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Users"
+          ],
+          "summary": "Update Current User Profile",
+          "description": "Update the profile of the currently logged in user",
+          "operationId": "update_current_user_profile_api_users_me_profile_put",
+          "parameters": [
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileUpdateRequest"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/register": {
+        "post": {
+          "tags": [
+            "Authentication"
+          ],
+          "summary": "Register Simple",
+          "description": "Simplified registration that returns only the session ID",
+          "operationId": "register_simple_api_auth_register_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SessionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/login": {
+        "post": {
+          "tags": [
+            "Authentication"
+          ],
+          "summary": "Login Simple",
+          "operationId": "login_simple_api_auth_login_post",
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SessionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/auth/logout": {
+        "post": {
+          "tags": [
+            "Authentication"
+          ],
+          "summary": "Logout",
+          "operationId": "logout_api_auth_logout_post",
+          "parameters": [
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/emotions/": {
+        "post": {
+          "tags": [
+            "Emotions"
+          ],
+          "summary": "Create Emotion",
+          "operationId": "create_emotion_api_emotions__post",
+          "parameters": [
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmotionCreate"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EmotionResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/emotions/me": {
+        "get": {
+          "tags": [
+            "Emotions"
+          ],
+          "summary": "Get User Emotions",
+          "operationId": "get_user_emotions_api_emotions_me_get",
+          "parameters": [
+            {
+              "name": "min_rating",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Filter emotions with rating greater than or equal to this value",
+                "title": "Min Rating"
+              },
+              "description": "Filter emotions with rating greater than or equal to this value"
+            },
+            {
+              "name": "max_rating",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "maximum": 10,
+                    "minimum": 1
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Filter emotions with rating less than or equal to this value",
+                "title": "Max Rating"
+              },
+              "description": "Filter emotions with rating less than or equal to this value"
+            },
+            {
+              "name": "date_from",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Filter emotions created after this date (inclusive)",
+                "title": "Date From"
+              },
+              "description": "Filter emotions created after this date (inclusive)"
+            },
+            {
+              "name": "date_to",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "Filter emotions created before this date (inclusive)",
+                "title": "Date To"
+              },
+              "description": "Filter emotions created before this date (inclusive)"
+            },
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EmotionResponse"
+                    },
+                    "title": "Response Get User Emotions Api Emotions Me Get"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/emotions/statistics/average/{period_type}": {
+        "get": {
+          "tags": [
+            "Emotions"
+          ],
+          "summary": "Get Emotion Statistics",
+          "description": "Get average rating of emotions for different time periods:\n\n- week: Average rating for each day of the last 7 days\n- month: Average rating for each week of the last month\n- year: Average rating for each month of the last year",
+          "operationId": "get_emotion_statistics_api_emotions_statistics_average__period_type__get",
+          "parameters": [
+            {
+              "name": "period_type",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "$ref": "#/components/schemas/StatisticsPeriod",
+                "description": "The time period to get statistics for: week, month, or year"
+              },
+              "description": "The time period to get statistics for: week, month, or year"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EmotionStatisticsResponse"
+                  }
+                }
+              }
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/emotions/csv-export": {
+        "get": {
+          "tags": [
+            "Emotions"
+          ],
+          "summary": "Export User Emotions Csv",
+          "description": "Export all emotions for the current user as a CSV file",
+          "operationId": "export_user_emotions_csv_api_emotions_csv_export_get",
+          "parameters": [
+            {
+              "name": "session_id",
+              "in": "cookie",
+              "required": false,
+              "schema": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Session Id"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Response"
+            },
+            "422": {
+              "description": "Validation Error",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/HTTPValidationError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "EmotionCreate": {
+          "properties": {
+            "latitude": {
+              "type": "number",
+              "title": "Latitude",
+              "description": "Latitude coordinate"
+            },
+            "longitude": {
+              "type": "number",
+              "title": "Longitude",
+              "description": "Longitude coordinate"
+            },
+            "rating": {
+              "type": "integer",
+              "maximum": 10,
+              "minimum": 1,
+              "title": "Rating",
+              "description": "Emotion rating from 1 to 10"
+            },
+            "comment": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Comment",
+              "description": "Optional comment about the emotion"
+            }
+          },
+          "type": "object",
+          "required": [
+            "latitude",
+            "longitude",
+            "rating"
+          ],
+          "title": "EmotionCreate",
+          "description": "Request model for creating a new emotion"
+        },
+        "EmotionResponse": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "latitude": {
+              "type": "number",
+              "title": "Latitude"
+            },
+            "longitude": {
+              "type": "number",
+              "title": "Longitude"
+            },
+            "rating": {
+              "type": "integer",
+              "title": "Rating"
+            },
+            "comment": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Comment"
+            },
+            "created_at": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Created At"
+            },
+            "user_id": {
+              "type": "integer",
+              "title": "User Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "latitude",
+            "longitude",
+            "rating",
+            "created_at",
+            "user_id"
+          ],
+          "title": "EmotionResponse",
+          "description": "Response model for emotion data"
+        },
+        "EmotionStatisticsResponse": {
+          "properties": {
+            "period_type": {
+              "type": "string",
+              "title": "Period Type",
+              "description": "Type of period (week, month, or year)"
+            },
+            "periods": {
+              "items": {
+                "$ref": "#/components/schemas/StatisticPeriod"
+              },
+              "type": "array",
+              "title": "Periods",
+              "description": "Statistics for each period"
+            }
+          },
+          "type": "object",
+          "required": [
+            "period_type",
+            "periods"
+          ],
+          "title": "EmotionStatisticsResponse",
+          "description": "Response model for emotion statistics"
+        },
+        "HTTPValidationError": {
+          "properties": {
+            "detail": {
+              "items": {
+                "$ref": "#/components/schemas/ValidationError"
+              },
+              "type": "array",
+              "title": "Detail"
+            }
+          },
+          "type": "object",
+          "title": "HTTPValidationError"
+        },
+        "LoginRequest": {
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email"
+            },
+            "password": {
+              "type": "string",
+              "title": "Password"
+            }
+          },
+          "type": "object",
+          "required": [
+            "email",
+            "password"
+          ],
+          "title": "LoginRequest"
+        },
+        "ProfileUpdateRequest": {
+          "properties": {
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          "type": "object",
+          "title": "ProfileUpdateRequest",
+          "description": "Request model for updating a user's profile"
+        },
+        "RegisterRequest": {
+          "properties": {
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email"
+            },
+            "password": {
+              "type": "string",
+              "title": "Password"
+            }
+          },
+          "type": "object",
+          "required": [
+            "email",
+            "password"
+          ],
+          "title": "RegisterRequest"
+        },
+        "SessionResponse": {
+          "properties": {
+            "session_id": {
+              "type": "string",
+              "title": "Session Id"
+            }
+          },
+          "type": "object",
+          "required": [
+            "session_id"
+          ],
+          "title": "SessionResponse"
+        },
+        "StatisticPeriod": {
+          "properties": {
+            "period_label": {
+              "type": "string",
+              "title": "Period Label",
+              "description": "Label for the time period (e.g., day, week, month)"
+            },
+            "average_rating": {
+              "type": "number",
+              "title": "Average Rating",
+              "description": "Average rating during this period"
+            },
+            "count": {
+              "type": "integer",
+              "title": "Count",
+              "description": "Number of emotions in this period"
+            }
+          },
+          "type": "object",
+          "required": [
+            "period_label",
+            "average_rating",
+            "count"
+          ],
+          "title": "StatisticPeriod",
+          "description": "A single period's statistics"
+        },
+        "StatisticsPeriod": {
+          "type": "string",
+          "enum": [
+            "week",
+            "month",
+            "year"
+          ],
+          "title": "StatisticsPeriod"
+        },
+        "UserResponse": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "title": "Id"
+            },
+            "email": {
+              "type": "string",
+              "format": "email",
+              "title": "Email"
+            },
+            "registration_date": {
+              "type": "string",
+              "format": "date-time",
+              "title": "Registration Date"
+            },
+            "name": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          "type": "object",
+          "required": [
+            "id",
+            "email",
+            "registration_date"
+          ],
+          "title": "UserResponse"
+        },
+        "ValidationError": {
+          "properties": {
+            "loc": {
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "array",
+              "title": "Location"
+            },
+            "msg": {
+              "type": "string",
+              "title": "Message"
+            },
+            "type": {
+              "type": "string",
+              "title": "Error Type"
+            }
+          },
+          "type": "object",
+          "required": [
+            "loc",
+            "msg",
+            "type"
+          ],
+          "title": "ValidationError"
+        }
+      }
+    }
+  }

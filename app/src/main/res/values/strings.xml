@@ -1,0 +1,79 @@
+<resources>
+    <string name="app_name">EmoMap</string>
+    
+    <!-- Authentication Strings -->
+    <string name="login">Войти</string>
+    <string name="register">Регистрация</string>
+    <string name="email">Электронная почта</string>
+    <string name="password">Пароль</string>
+    <string name="confirm_password">Подтвердите пароль</string>
+    <string name="login_button">Войти</string>
+    <string name="register_button">Зарегистрироваться</string>
+    <string name="have_account">Уже есть аккаунт? Войти</string>
+    <string name="no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="welcome_back">С возвращением!</string>
+    <string name="create_account">Создать аккаунт</string>
+    <string name="join_emomap">Присоединяйтесь к EmoMap</string>
+    
+    <!-- Error Messages -->
+    <string name="error_empty_email">Введите электронную почту</string>
+    <string name="error_invalid_email">Неверный формат электронной почты</string>
+    <string name="error_empty_password">Введите пароль</string>
+    <string name="error_password_too_short">Пароль должен содержать минимум 6 символов</string>
+    <string name="error_passwords_dont_match">Пароли не совпадают</string>
+    <string name="error_login_failed">Ошибка входа. Проверьте данные</string>
+    <string name="error_register_failed">Ошибка регистрации. Попробуйте снова</string>
+    <string name="error_network">Ошибка сети. Проверьте подключение</string>
+    
+    <!-- Loading -->
+    <string name="loading">Загрузка...</string>
+    <string name="logging_in">Вход в систему...</string>
+    <string name="registering">Регистрация...</string>
+    
+    <!-- Main Emotion Screen -->
+    <string name="mood_question">Какое у тебя настроение?</string>
+    <string name="add_comment">Добавь комментарий</string>
+    <string name="choose_location">Выбери геолокацию</string>
+    <string name="save_emotion">Сохранить</string>
+    <string name="current_location">Текущее местоположение</string>
+    <string name="location_permission_needed">Нужно разрешение на геолокацию</string>
+    <string name="location_permission_denied">Разрешение на геолокацию отклонено</string>
+    <string name="getting_location">Получение местоположения...</string>
+    <string name="emotion_saved">Эмоция сохранена!</string>
+    <string name="error_saving_emotion">Ошибка сохранения эмоции</string>
+    <string name="select_location_on_map">Выберите местоположение на карте</string>
+    <string name="confirm_location">Подтвердить местоположение</string>
+    
+    <!-- Emotion Descriptions -->
+    <string name="emotion_sad">Грустное</string>
+    <string name="emotion_neutral">Нейтральное</string>
+    <string name="emotion_happy">Радостное</string>
+    
+    <!-- Navigation -->
+    <string name="nav_home">Главная</string>
+    <string name="nav_map">Карта</string>
+    <string name="nav_history">История</string>
+    <string name="nav_profile">Профиль</string>
+    <string name="nav_statistics">Статистика</string>
+    
+    <!-- Profile Page -->
+    <string name="profile_title">Профиль</string>
+    <string name="privacy_settings">Настройки конфиденциальности</string>
+    <string name="share_emotions">Поделиться эмоциями</string>
+    <string name="data_export">Экспорт данных</string>
+    <string name="export_csv">Экспортировать в CSV</string>
+    <string name="edit_profile">Редактировать профиль</string>
+    <string name="logout">Выйти</string>
+    <string name="logout_confirm">Вы уверены, что хотите выйти?</string>
+    <string name="logout_success">Выход выполнен успешно</string>
+    <string name="profile_updated">Профиль обновлен</string>
+    <string name="export_started">Начинается экспорт данных...</string>
+    <string name="export_success">Данные экспортированы успешно</string>
+    <string name="export_error">Ошибка экспорта данных</string>
+    <string name="name_hint">Введите ваше имя</string>
+    <string name="save_changes">Сохранить изменения</string>
+    <string name="cancel">Отмена</string>
+    
+    <!-- Permissions -->
+    <string name="permission_location_rationale">Приложению нужен доступ к геолокации для сохранения места ваших эмоций</string>
+</resources>
