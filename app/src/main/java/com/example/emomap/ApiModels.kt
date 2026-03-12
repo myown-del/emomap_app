@@ -13,7 +13,24 @@ data class RegisterRequest(
     val password: String
 )
 
-// Authentication Response Models
+// Password reset request models
+data class PasswordResetRequest(
+    val email: String
+)
+
+data class PasswordResetVerifyRequest(
+    val email: String,
+    val code: String
+)
+
+data class PasswordResetConfirmRequest(
+    @SerializedName("reset_token")
+    val resetToken: String,
+    @SerializedName("new_password")
+    val newPassword: String
+)
+
+// Authentication / password reset response models
 data class SessionResponse(
     @SerializedName("session_id")
     val sessionId: String
@@ -27,9 +44,15 @@ data class UserResponse(
     val name: String?
 )
 
+data class PasswordResetRequestResponse(
+    val message: String
+)
+
 // Profile Update Model
 data class ProfileUpdateRequest(
-    val name: String?
+    val name: String? = null,
+    val email: String? = null,
+    val password: String? = null
 )
 
 // Emotion Models
@@ -76,4 +99,4 @@ data class EmotionStatisticsResponse(
     @SerializedName("period_type")
     val periodType: String,
     val periods: List<StatisticPeriod>
-) 
+)

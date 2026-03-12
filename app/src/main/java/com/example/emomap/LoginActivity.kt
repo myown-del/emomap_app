@@ -38,6 +38,10 @@ class LoginActivity : AppCompatActivity() {
             performLogin()
         }
         
+        binding.tvForgotPassword.setOnClickListener {
+            startActivity(Intent(this, PasswordResetEmailActivity::class.java))
+        }
+        
         binding.tvRegisterLink.setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
@@ -107,12 +111,14 @@ class LoginActivity : AppCompatActivity() {
             binding.btnLogin.isEnabled = false
             binding.etEmail.isEnabled = false
             binding.etPassword.isEnabled = false
+            binding.tvForgotPassword.isEnabled = false
             binding.tvRegisterLink.isEnabled = false
         } else {
             binding.progressBar.visibility = View.GONE
             binding.btnLogin.isEnabled = true
             binding.etEmail.isEnabled = true
             binding.etPassword.isEnabled = true
+            binding.tvForgotPassword.isEnabled = true
             binding.tvRegisterLink.isEnabled = true
         }
     }

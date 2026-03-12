@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import com.example.emomap.databinding.ActivityMapBinding
+import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
 import org.osmdroid.api.IMapController
 import org.osmdroid.config.Configuration
@@ -93,15 +94,43 @@ class MapActivity : BaseActivity() {
             showDatePicker()
         }
         
-        // Filter button
+        // Reset button
         binding.btnFilter.setOnClickListener {
+            selectedDate = null
+            binding.etDateFilter.text?.clear()
+            clearEmotionFilterSelection()
             loadEmotions()
         }
-        
-        // Chip group listener - simpler and more reliable with single selection
-        binding.chipGroupEmotions.setOnCheckedStateChangeListener { _, checkedIds ->
-            android.util.Log.d("MapActivity", "Chip selection changed: $checkedIds")
-            loadEmotions()
+
+        setupEmotionFilterButtons()
+    }
+
+    private fun setupEmotionFilterButtons() {
+        val buttons = emotionFilterButtons()
+        buttons.forEach { button ->
+            button.setOnClickListener {
+                if (button.isChecked) {
+                    buttons.filter { it != button }.forEach { it.isChecked = false }
+                }
+                loadEmotions()
+            }
+        }
+    }
+
+    private fun emotionFilterButtons(): List<MaterialButton> {
+        return listOf(binding.chipSad, binding.chipNeutral, binding.chipHappy)
+    }
+
+    private fun clearEmotionFilterSelection() {
+        emotionFilterButtons().forEach { it.isChecked = false }
+    }
+
+    private fun getCheckedEmotionFilterId(): Int {
+        return when {
+            binding.chipHappy.isChecked -> R.id.chipHappy
+            binding.chipNeutral.isChecked -> R.id.chipNeutral
+            binding.chipSad.isChecked -> R.id.chipSad
+            else -> View.NO_ID
         }
     }
     
@@ -115,6 +144,7 @@ class MapActivity : BaseActivity() {
                 selectedDate = format.format(calendar.time)
                 val displayFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
                 binding.etDateFilter.setText(displayFormat.format(calendar.time))
+                loadEmotions()
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
@@ -185,24 +215,20 @@ class MapActivity : BaseActivity() {
             }
         }
         
-        // Filter by emotion type based on selected chip
-        val checkedChipId = binding.chipGroupEmotions.checkedChipId
+        // Filter by emotion type based on selected button
+        val checkedChipId = getCheckedEmotionFilterId()
         when (checkedChipId) {
             R.id.chipHappy -> {
-                android.util.Log.d("MapActivity", "Filtering for happy emotions (rating >= 7)")
-                filtered = filtered.filter { it.rating >= 7 }
+                android.util.Log.d("MapActivity", "Filtering for happy emotions (rating 7-10)")
+                filtered = filtered.filter { it.rating in 7..10 }
             }
             R.id.chipNeutral -> {
-                android.util.Log.d("MapActivity", "Filtering for neutral emotions (rating 5-6)")
-                filtered = filtered.filter { it.rating in 5..6 }
+                android.util.Log.d("MapActivity", "Filtering for neutral emotions (rating 4-6)")
+                filtered = filtered.filter { it.rating in 4..6 }
             }
             R.id.chipSad -> {
-                android.util.Log.d("MapActivity", "Filtering for sad emotions (rating <= 4)")
-                filtered = filtered.filter { it.rating <= 4 }
-            }
-            R.id.chipAllEmotions -> {
-                android.util.Log.d("MapActivity", "Showing all emotions (no rating filter)")
-                // No additional filtering - show all emotions
+                android.util.Log.d("MapActivity", "Filtering for sad emotions (rating 1-3)")
+                filtered = filtered.filter { it.rating in 1..3 }
             }
             else -> {
                 android.util.Log.d("MapActivity", "No chip selected, showing all emotions")
@@ -228,11 +254,12 @@ class MapActivity : BaseActivity() {
             
             // Set marker icon based on emotion rating
             val iconRes = when {
-                emotion.rating >= 7 -> android.R.drawable.presence_online // Green circle
-                emotion.rating <= 4 -> android.R.drawable.presence_busy // Red circle  
-                else -> android.R.drawable.presence_away // Orange circle
+                emotion.rating in 7..10 -> R.drawable.emotion_marker_happy
+                emotion.rating in 1..3 -> R.drawable.emotion_marker_sad
+                else -> R.drawable.emotion_marker_neutral
             }
             marker.icon = resources.getDrawable(iconRes, theme)
+            marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
             
             // Set click listener
             marker.setOnMarkerClickListener { _, _ ->

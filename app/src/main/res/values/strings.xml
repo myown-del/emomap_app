@@ -5,15 +5,35 @@
     <string name="login">Войти</string>
     <string name="register">Регистрация</string>
     <string name="email">Электронная почта</string>
+    <string name="email_short">Email</string>
     <string name="password">Пароль</string>
+    <string name="password_short">Пароль</string>
+    <string name="confirm_password_short">Подтвердите пароль</string>
     <string name="confirm_password">Подтвердите пароль</string>
     <string name="login_button">Войти</string>
     <string name="register_button">Зарегистрироваться</string>
     <string name="have_account">Уже есть аккаунт? Войти</string>
+    <string name="have_account_full">Уже зарегистрированы? Войти</string>
     <string name="no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="register_link">Зарегистрироваться</string>
     <string name="welcome_back">С возвращением!</string>
     <string name="create_account">Создать аккаунт</string>
     <string name="join_emomap">Присоединяйтесь к EmoMap</string>
+
+    <!-- Password reset -->
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="reset_password_title">Сбросить пароль</string>
+    <string name="next">Далее</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="back_to_login">Вернуться назад</string>
+    <string name="back_to_email">Вернуться назад</string>
+    <string name="back_to_code">Вернуться назад</string>
+    <string name="reset_code_description">Вам был отправлен 4-х значный код на email</string>
+    <string name="reset_code_hint">Введите код</string>
+    <string name="reset_new_password_hint">Введите новый пароль</string>
+
+    <!-- Registration -->
+    <string name="name">Имя</string>
     
     <!-- Error Messages -->
     <string name="error_empty_email">Введите электронную почту</string>

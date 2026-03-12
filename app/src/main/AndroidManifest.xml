@@ -43,6 +43,20 @@
             android:exported="false"
             android:screenOrientation="portrait" />
 
+        <!-- Password reset flow -->
+        <activity
+            android:name=".PasswordResetEmailActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PasswordResetCodeActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PasswordResetNewPasswordActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
         <!-- Main Activity -->
         <activity
             android:name=".MainActivity"

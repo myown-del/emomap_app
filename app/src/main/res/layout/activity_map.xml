@@ -53,7 +53,7 @@
                     android:drawablePadding="8dp"
                     android:focusable="false"
                     android:gravity="center_vertical"
-                    android:hint="Выбери дату"
+                    android:hint="@string/filter_date_hint"
                     android:paddingStart="14dp"
                     android:paddingEnd="14dp"
                     android:textColor="@color/text_primary"
@@ -67,7 +67,7 @@
                     android:layout_weight="1"
                     android:minWidth="112dp"
                     android:background="@drawable/filter_button_background"
-                    android:text="Фильтровать"
+                    android:text="@string/reset_filters"
                     android:textAllCaps="false"
                     android:textColor="@color/text_primary"
                     android:textSize="13sp"
@@ -76,71 +76,87 @@
 
             </LinearLayout>
 
-            <com.google.android.material.chip.ChipGroup
+            <LinearLayout
                 android:id="@+id/chipGroupEmotions"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:checkedChip="@id/chipAllEmotions"
-                app:chipSpacingHorizontal="8dp"
-                app:chipSpacingVertical="8dp"
-                app:singleLine="true"
-                app:singleSelection="true">
+                android:orientation="horizontal">
 
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipAllEmotions"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:checkable="true"
-                    android:checked="true"
-                    android:minWidth="128dp"
-                    android:text="Все эмоции"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipCornerRadius="10dp"
-                    app:chipMinHeight="48dp"
-                    app:chipStrokeColor="@color/text_primary"
-                    app:chipStrokeWidth="1dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipHappy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="48dp"
-                    android:checkable="true"
-                    android:minWidth="94dp"
-                    android:text="Счастье"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipCornerRadius="10dp"
-                    app:chipMinHeight="48dp"
-                    app:chipStrokeColor="@color/text_primary"
-                    app:chipStrokeWidth="1dp" />
-
-                <com.google.android.material.chip.Chip
-                    android:id="@+id/chipNeutral"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:checkable="true"
-                    android:text="Нейтрально"
-                    android:visibility="gone" />
-
-                <com.google.android.material.chip.Chip
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/chipSad"
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
                     android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/filter_emotion_button_background"
                     android:checkable="true"
-                    android:minWidth="82dp"
-                    android:text="Грусть"
-                    android:textColor="@color/text_primary"
-                    android:textSize="13sp"
-                    app:chipBackgroundColor="@color/chip_background_selector"
-                    app:chipCornerRadius="10dp"
-                    app:chipMinHeight="48dp"
-                    app:chipStrokeColor="@color/text_primary"
-                    app:chipStrokeWidth="1dp" />
+                    android:contentDescription="@string/filter_emotion_sad"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_emotion_sad"
+                    app:iconGravity="textTop"
+                    app:iconPadding="0dp"
+                    app:iconSize="26dp"
+                    app:iconTint="@null"
+                    app:strokeWidth="0dp" />
 
-            </com.google.android.material.chip.ChipGroup>
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chipNeutral"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/filter_emotion_button_background"
+                    android:checkable="true"
+                    android:contentDescription="@string/filter_emotion_neutral"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_emotion_ok"
+                    app:iconGravity="textTop"
+                    app:iconPadding="0dp"
+                    app:iconSize="26dp"
+                    app:iconTint="@null"
+                    app:strokeWidth="0dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/chipHappy"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/filter_emotion_button_background"
+                    android:checkable="true"
+                    android:contentDescription="@string/filter_emotion_happy"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:insetLeft="0dp"
+                    android:insetRight="0dp"
+                    android:minWidth="0dp"
+                    android:padding="0dp"
+                    app:backgroundTint="@null"
+                    app:cornerRadius="12dp"
+                    app:icon="@drawable/ic_emotion_happy"
+                    app:iconGravity="textTop"
+                    app:iconPadding="0dp"
+                    app:iconSize="26dp"
+                    app:iconTint="@null"
+                    app:strokeWidth="0dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 

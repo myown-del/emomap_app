@@ -18,6 +18,22 @@ interface ApiService {
     
     @POST("api/auth/logout")
     suspend fun logout(): Response<Unit>
+
+    // Password reset endpoints
+    @POST("api/auth/password-reset/request")
+    suspend fun requestPasswordReset(
+        @Body request: PasswordResetRequest
+    ): Response<PasswordResetRequestResponse>
+
+    @POST("api/auth/password-reset/verify")
+    suspend fun verifyPasswordReset(
+        @Body request: PasswordResetVerifyRequest
+    ): Response<Boolean>
+
+    @POST("api/auth/password-reset/confirm")
+    suspend fun confirmPasswordReset(
+        @Body request: PasswordResetConfirmRequest
+    ): Response<PasswordResetRequestResponse>
     
     @POST("api/emotions/")
     suspend fun createEmotion(@Body request: EmotionCreate): Response<EmotionResponse>

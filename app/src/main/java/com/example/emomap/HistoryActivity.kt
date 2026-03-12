@@ -1,9 +1,11 @@
 package com.example.emomap
 
 import android.content.Intent
-import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.location.Geocoder
 import android.os.Bundle
+import android.text.TextUtils
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +22,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 class HistoryActivity : BaseActivity() {
     
@@ -208,109 +212,122 @@ class HistoryActivity : BaseActivity() {
     private fun displayChart(statistics: EmotionStatisticsResponse) {
         android.util.Log.d("HistoryActivity", "Displaying chart with ${statistics.periods.size} periods")
         binding.chartView.removeAllViews()
-        
+
         val maxRating = 10.0
-        val chartHeight = 140 // Chart bars height
-        val valueSpaceHeight = 40 // Extra space for value labels above bars (increased)
-        val barWidth = 50
-        val barSpacing = 20
-        val labelWidth = 80
-        
-        statistics.periods.forEach { period ->
+        val isCompact = statistics.periods.size > 8
+        val chartHeight = if (isCompact) 132.dp() else 148.dp()
+        val valueSpaceHeight = 30.dp()
+        val barWidth = if (isCompact) 28.dp() else 36.dp()
+        val labelWidth = if (isCompact) 52.dp() else 64.dp()
+        val minBarHeight = 14.dp()
+        val barCornerRadius = 10f.dp()
+        val barTrackColor = ColorUtils.setAlphaComponent(getColor(R.color.surface_variant), 80)
+
+        binding.chartView.setPadding(6.dp(), 4.dp(), 6.dp(), 2.dp())
+
+        statistics.periods.forEachIndexed { index, period ->
             android.util.Log.d("HistoryActivity", "Adding bar for period: '${period.periodLabel}', rating: ${period.averageRating}")
-            
-            // Main container for each bar and its label
+
             val barContainer = LinearLayout(this).apply {
                 orientation = LinearLayout.VERTICAL
                 layoutParams = LinearLayout.LayoutParams(
-                    labelWidth + 10,
+                    labelWidth,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    marginStart = 5
-                    marginEnd = 5
+                    marginStart = 4.dp()
+                    marginEnd = 4.dp()
                 }
-                gravity = android.view.Gravity.CENTER
-                setPadding(5, 4, 5, 4)
+                gravity = Gravity.CENTER_HORIZONTAL
             }
-            
-            // Chart area (fixed height container with space for labels)
+
             val chartArea = FrameLayout(this).apply {
                 layoutParams = LinearLayout.LayoutParams(
-                    barWidth,
-                    chartHeight + valueSpaceHeight // Add space for value labels
+                    labelWidth,
+                    chartHeight + valueSpaceHeight
                 )
             }
-            
-            // Calculate bar height
-            val barHeight = maxOf(20, ((period.averageRating / maxRating) * chartHeight).toInt())
-            
-            // Value label positioned just above the bar
-            val valueLabel = TextView(this).apply {
-                text = String.format(Locale.getDefault(), "%.1f", period.averageRating)
-                textSize = 9f
-                setTextColor(getColor(R.color.text_primary))
-                gravity = android.view.Gravity.CENTER
+
+            val rating = period.averageRating.coerceIn(0.0, maxRating)
+            val barHeight = maxOf(minBarHeight, ((rating / maxRating) * chartHeight).toInt())
+
+            val barTrack = View(this).apply {
                 layoutParams = FrameLayout.LayoutParams(
                     barWidth,
-                    FrameLayout.LayoutParams.WRAP_CONTENT
+                    chartHeight
                 ).apply {
-                    gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
-                    bottomMargin = barHeight + 5 // Position just above the bar with 5px gap
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                }
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadius = barCornerRadius
+                    setColor(barTrackColor)
                 }
             }
-            
-            // Bar positioned at bottom of chart area
+
             val bar = View(this).apply {
                 layoutParams = FrameLayout.LayoutParams(
                     barWidth,
                     barHeight
                 ).apply {
-                    gravity = android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL
-                    bottomMargin = 0 // Position at bottom of the chart area
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
                 }
-                setBackgroundColor(getBarColor(period.averageRating))
+                background = GradientDrawable().apply {
+                    shape = GradientDrawable.RECTANGLE
+                    cornerRadii = floatArrayOf(
+                        barCornerRadius, barCornerRadius,
+                        barCornerRadius, barCornerRadius,
+                        4f.dp(), 4f.dp(),
+                        4f.dp(), 4f.dp()
+                    )
+                    setColor(getBarColor(rating))
+                }
             }
-            
-            // Add value and bar to chart area
+
+            val valueLabel = TextView(this).apply {
+                text = String.format(Locale.getDefault(), "%.1f", rating)
+                textSize = 11f
+                setTextColor(getColor(R.color.text_primary))
+                gravity = Gravity.CENTER
+                layoutParams = FrameLayout.LayoutParams(
+                    labelWidth,
+                    FrameLayout.LayoutParams.WRAP_CONTENT
+                ).apply {
+                    gravity = Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                    bottomMargin = barHeight + 6.dp()
+                }
+                includeFontPadding = false
+            }
+
+            chartArea.addView(barTrack)
             chartArea.addView(bar)
             chartArea.addView(valueLabel)
-            
-            // Period label (below chart area)
+
             val periodLabel = TextView(this).apply {
-                text = if (period.periodLabel.isNotBlank()) {
-                    period.periodLabel
-                } else {
-                    "Label"
-                }
+                text = formatPeriodLabel(period.periodLabel, index, statistics.periodType)
                 android.util.Log.d("HistoryActivity", "Creating period label: '${text}'")
-                textSize = 8f
-                setTextColor(getColor(R.color.text_primary))
-                gravity = android.view.Gravity.CENTER
-                maxLines = 3
+                textSize = 11f
+                setTextColor(getColor(R.color.text_secondary))
+                gravity = Gravity.CENTER
+                maxLines = if (statistics.periodType == "year") 2 else 1
+                ellipsize = TextUtils.TruncateAt.END
                 layoutParams = LinearLayout.LayoutParams(
                     labelWidth,
                     LinearLayout.LayoutParams.WRAP_CONTENT
                 ).apply {
-                    topMargin = 8
+                    topMargin = 10.dp()
                 }
-                setBackgroundColor(getColor(android.R.color.transparent))
-                setPadding(4, 4, 4, 4)
-                setTextColor(getColor(R.color.text_primary))
-                setSingleLine(false)
-                includeFontPadding = true
+                includeFontPadding = false
             }
-            
-            // Add chart area and label to main container
+
             barContainer.addView(chartArea)
             barContainer.addView(periodLabel)
-            
-            // Add to main chart view
+
             binding.chartView.addView(barContainer)
         }
-        
+
         android.util.Log.d("HistoryActivity", "Chart display completed, child count: ${binding.chartView.childCount}")
     }
-    
+
     private fun getBarColor(rating: Double): Int {
         return when {
             rating >= 7.0 -> getColor(R.color.success_green)
@@ -318,6 +335,81 @@ class HistoryActivity : BaseActivity() {
             else -> getColor(R.color.error_red)
         }
     }
+
+    private fun formatPeriodLabel(periodLabel: String, index: Int, periodType: String): String {
+        return when (periodType) {
+            "week" -> formatDayLabel(periodLabel, index)
+            "month" -> formatWeekLabel(periodLabel, index)
+            else -> periodLabel.ifBlank { (index + 1).toString() }
+        }
+    }
+
+    private fun formatDayLabel(periodLabel: String, index: Int): String {
+        val normalized = periodLabel.trim().lowercase(Locale.getDefault())
+        val dayMap = mapOf(
+            "monday" to "Пн",
+            "mon" to "Пн",
+            "понедельник" to "Пн",
+            "пн" to "Пн",
+            "tuesday" to "Вт",
+            "tue" to "Вт",
+            "tues" to "Вт",
+            "вторник" to "Вт",
+            "вт" to "Вт",
+            "wednesday" to "Ср",
+            "wed" to "Ср",
+            "среда" to "Ср",
+            "ср" to "Ср",
+            "thursday" to "Чт",
+            "thu" to "Чт",
+            "thur" to "Чт",
+            "thurs" to "Чт",
+            "четверг" to "Чт",
+            "чт" to "Чт",
+            "friday" to "Пт",
+            "fri" to "Пт",
+            "пятница" to "Пт",
+            "пт" to "Пт",
+            "saturday" to "Сб",
+            "sat" to "Сб",
+            "суббота" to "Сб",
+            "сб" to "Сб",
+            "sunday" to "Вс",
+            "sun" to "Вс",
+            "воскресенье" to "Вс",
+            "вс" to "Вс"
+        )
+        dayMap[normalized]?.let { return it }
+
+        if (periodLabel.isNotBlank() && periodLabel.length <= 3) {
+            return periodLabel.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        }
+
+        val fallback = listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
+        return fallback[index % fallback.size]
+    }
+
+    private fun formatWeekLabel(periodLabel: String, index: Int): String {
+        if (periodLabel.isBlank()) {
+            return "Нед ${index + 1}"
+        }
+
+        val number = Regex("""\d+""").find(periodLabel)?.value
+        if (number != null) {
+            return "Нед $number"
+        }
+
+        val normalized = periodLabel.trim().lowercase(Locale.getDefault())
+        if (normalized.contains("week") || normalized.contains("нед")) {
+            return "Нед ${index + 1}"
+        }
+
+        return periodLabel
+    }
+
+    private fun Int.dp(): Int = (this * resources.displayMetrics.density).roundToInt()
+
+    private fun Float.dp(): Float = this * resources.displayMetrics.density
     
     private fun handleApiError(code: Int) {
         when (code) {
@@ -372,7 +464,7 @@ class EmotionHistoryAdapter(private val emotions: List<EmotionResponse>) :
         holder.tvEmotionCircle.backgroundTintList = 
             holder.itemView.context.getColorStateList(color)
         
-        // Get location name
+        // Get full address from coordinates
         val context = holder.itemView.context
         val geocoder = Geocoder(context, Locale.getDefault())
         var locationName = "Неизвестное место"
@@ -381,11 +473,10 @@ class EmotionHistoryAdapter(private val emotions: List<EmotionResponse>) :
             val addresses = geocoder.getFromLocation(emotion.latitude, emotion.longitude, 1)
             if (!addresses.isNullOrEmpty()) {
                 val address = addresses[0]
-                locationName = address.locality ?: address.subAdminArea ?: 
-                    address.adminArea ?: "Координаты: ${emotion.latitude}, ${emotion.longitude}"
+                locationName = address.getAddressLine(0) ?: locationName
             }
         } catch (e: IOException) {
-            // Use default name
+            // Keep default fallback
         }
         
         holder.tvEmotionDescription.text = "Настроение: ${emotion.rating}, $locationName"

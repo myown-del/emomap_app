@@ -115,7 +115,7 @@ class MapPickerActivity : BaseActivity() {
 
         if (locationMarker == null) {
             locationMarker = Marker(mapView).apply {
-                icon = resources.getDrawable(android.R.drawable.ic_menu_mylocation, theme)
+                icon = resources.getDrawable(R.drawable.ic_location_picker_marker, theme)
                 setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                 mapView.overlays.add(this)
             }

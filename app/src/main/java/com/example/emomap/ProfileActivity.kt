@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
+import android.util.Patterns
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
@@ -12,6 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.emomap.databinding.ActivityProfileBinding
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.File
 import java.io.FileOutputStream
 
@@ -204,25 +207,53 @@ class ProfileActivity : BaseActivity() {
             binding.etName.error = getString(R.string.name_hint)
             return
         }
-        updateProfileName(newName)
+        updateProfile(name = newName)
     }
 
     private fun saveEmailField() {
-        Toast.makeText(this, "Email editing is not supported by the backend yet", Toast.LENGTH_LONG).show()
-        exitEditMode()
+        val newEmail = binding.etEmail.text.toString().trim()
+
+        if (newEmail.isEmpty()) {
+            binding.etEmail.error = getString(R.string.error_empty_email)
+            return
+        }
+        if (!Patterns.EMAIL_ADDRESS.matcher(newEmail).matches()) {
+            binding.etEmail.error = getString(R.string.error_invalid_email)
+            return
+        }
+
+        updateProfile(email = newEmail)
     }
 
     private fun savePasswordField() {
-        Toast.makeText(this, "Password editing is not supported by the backend yet", Toast.LENGTH_LONG).show()
-        exitEditMode()
+        val newPassword = binding.etPassword.text.toString().trim()
+
+        if (newPassword.isEmpty()) {
+            binding.etPassword.error = getString(R.string.error_empty_password)
+            return
+        }
+        if (newPassword.length < 6) {
+            binding.etPassword.error = getString(R.string.error_password_too_short)
+            return
+        }
+
+        updateProfile(password = newPassword)
     }
 
-    private fun updateProfileName(name: String) {
+    private fun updateProfile(
+        name: String? = null,
+        email: String? = null,
+        password: String? = null
+    ) {
         setLoadingState(true)
 
         lifecycleScope.launch {
             try {
-                val request = ProfileUpdateRequest(name)
+                val request = ProfileUpdateRequest(
+                    name = name,
+                    email = email,
+                    password = password
+                )
                 val response = NetworkConfig.apiService.updateProfile(request)
 
                 setLoadingState(false)
@@ -233,13 +264,65 @@ class ProfileActivity : BaseActivity() {
                     exitEditMode()
                     Toast.makeText(this@ProfileActivity, getString(R.string.profile_updated), Toast.LENGTH_SHORT).show()
                 } else {
-                    Toast.makeText(this@ProfileActivity, "Failed to update profile", Toast.LENGTH_LONG).show()
+                    when (response.code()) {
+                        401 -> {
+                            authRepository.logoutSync()
+                            startActivity(Intent(this@ProfileActivity, LoginActivity::class.java))
+                            finish()
+                        }
+                        409 -> {
+                            val detail = extractErrorDetail(response.errorBody()?.string())
+                                ?: "User with this email already exists"
+                            Toast.makeText(this@ProfileActivity, detail, Toast.LENGTH_LONG).show()
+                        }
+                        422 -> {
+                            val detail = extractErrorDetail(response.errorBody()?.string())
+                                ?: "Invalid profile data"
+                            Toast.makeText(this@ProfileActivity, detail, Toast.LENGTH_LONG).show()
+                        }
+                        else -> {
+                            Toast.makeText(
+                                this@ProfileActivity,
+                                "Failed to update profile: ${response.code()}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
+                    }
                 }
             } catch (e: Exception) {
                 setLoadingState(false)
                 Toast.makeText(this@ProfileActivity, "Network error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
+    }
+
+    private fun extractErrorDetail(errorBody: String?): String? {
+        if (errorBody.isNullOrBlank()) return null
+
+        return try {
+            val errorJson = JSONObject(errorBody)
+            when (val detail = errorJson.opt("detail")) {
+                is String -> detail.takeIf { it.isNotBlank() }
+                is JSONArray -> extractDetailFromArray(detail)
+                else -> null
+            }
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    private fun extractDetailFromArray(detailArray: JSONArray): String? {
+        for (i in 0 until detailArray.length()) {
+            val item = detailArray.opt(i)
+            when (item) {
+                is String -> if (item.isNotBlank()) return item
+                is JSONObject -> {
+                    val message = item.optString("msg")
+                    if (message.isNotBlank()) return message
+                }
+            }
+        }
+        return null
     }
 
     private fun getEditButton(field: EditableField): ImageButton {

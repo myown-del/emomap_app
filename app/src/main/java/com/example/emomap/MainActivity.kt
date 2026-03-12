@@ -307,7 +307,8 @@ class MainActivity : BaseActivity() {
         val marker = Marker(mapView)
         marker.position = point
         marker.title = "Выбранное место"
-        marker.icon = resources.getDrawable(android.R.drawable.ic_menu_mylocation, theme)
+        marker.icon = resources.getDrawable(R.drawable.ic_location_picker_marker, theme)
+        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
         
         mapView.overlays.add(marker)
         mapView.invalidate()
