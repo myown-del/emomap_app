@@ -189,13 +189,22 @@ class MapActivity : BaseActivity() {
 
         lifecycleScope.launch {
             try {
-                val response = NetworkConfig.apiService.getUserEmotions()
+                val (minRating, maxRating) = getSelectedRatingRange()
+                val dateFrom = selectedDate
+                val dateTo = selectedDate
+
+                val response = NetworkConfig.apiService.getUserEmotions(
+                    minRating = minRating,
+                    maxRating = maxRating,
+                    dateFrom = dateFrom,
+                    dateTo = dateTo
+                )
 
                 setLoadingState(false)
 
                 if (response.isSuccessful) {
                     val emotions = response.body() ?: emptyList()
-                    displayEmotionsOnMap(filterEmotions(emotions))
+                    displayEmotionsOnMap(emotions)
                 } else {
                     val errorMessage = when (response.code()) {
                         401 -> {
@@ -216,41 +225,14 @@ class MapActivity : BaseActivity() {
         }
     }
 
-    private fun filterEmotions(emotions: List<EmotionResponse>): List<EmotionResponse> {
-        var filtered = emotions
-
-        // Filter by date
-        selectedDate?.let { date ->
-            filtered = filtered.filter { emotion ->
-                emotion.createdAt?.startsWith(date) == true
-            }
-        }
-
-        // Filter by emotion type based on selected button
+    private fun getSelectedRatingRange(): Pair<Int?, Int?> {
         val checkedChipId = getCheckedEmotionFilterId()
-        when (checkedChipId) {
-            R.id.chipHappy -> {
-                android.util.Log.d("MapActivity", "Filtering for happy emotions (rating 7-10)")
-                filtered = filtered.filter { it.rating in 7..10 }
-            }
-
-            R.id.chipNeutral -> {
-                android.util.Log.d("MapActivity", "Filtering for neutral emotions (rating 4-6)")
-                filtered = filtered.filter { it.rating in 4..6 }
-            }
-
-            R.id.chipSad -> {
-                android.util.Log.d("MapActivity", "Filtering for sad emotions (rating 1-3)")
-                filtered = filtered.filter { it.rating in 1..3 }
-            }
-
-            else -> {
-                android.util.Log.d("MapActivity", "No chip selected, showing all emotions")
-            }
+        return when (checkedChipId) {
+            R.id.chipHappy -> 7 to 10
+            R.id.chipNeutral -> 4 to 6
+            R.id.chipSad -> 1 to 3
+            else -> null to null
         }
-
-        android.util.Log.d("MapActivity", "Filtered ${filtered.size} emotions from ${emotions.size} total")
-        return filtered
     }
 
     private fun displayEmotionsOnMap(emotions: List<EmotionResponse>) {
@@ -327,7 +309,6 @@ class MapActivity : BaseActivity() {
                 address = addr.getAddressLine(0) ?: address
             }
         } catch (_: IOException) {
-            // Keep coordinate fallback.
         }
 
         binding.tvEmotionLocation.text = address

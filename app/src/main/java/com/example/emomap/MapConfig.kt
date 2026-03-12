@@ -1,10 +1,10 @@
 package com.example.emomap
 
 object MapConfig {
-    // Keep remote style for optional future use/debug.
+    // Векторный
     const val DEFAULT_STYLE_URL = "https://demotiles.maplibre.org/style.json"
 
-    // Raster style avoids vector glyph/sprite dependencies and is more robust on mobile networks.
+    // Растровый
     val DEFAULT_STYLE_JSON: String = """
         {
           "version": 8,

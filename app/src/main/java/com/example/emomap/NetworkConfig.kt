@@ -1,7 +1,6 @@
 package com.example.emomap
 
 import android.content.Context
-import android.content.SharedPreferences
 import okhttp3.Cookie
 import okhttp3.CookieJar
 import okhttp3.HttpUrl
@@ -19,10 +18,8 @@ object NetworkConfig {
     // For real device, use: "http://YOUR_IP_ADDRESS:8080/"
     // For emulator: "http://10.0.2.2:8080/" maps to host's localhost:8080
     
-    private var sharedPreferences: SharedPreferences? = null
-    
     fun initialize(context: Context) {
-        sharedPreferences = context.getSharedPreferences("emomap_prefs", Context.MODE_PRIVATE)
+        SecureSessionStore.initialize(context.applicationContext)
     }
     
     private val cookieJar = object : CookieJar {
@@ -31,15 +28,15 @@ object NetworkConfig {
         override fun saveFromResponse(url: HttpUrl, cookies: List<Cookie>) {
             cookieStore[url.host] = cookies
             
-            // Save session_id cookie to SharedPreferences
+            // Save session_id cookie to encrypted storage
             cookies.find { it.name == "session_id" }?.let { sessionCookie ->
-                sharedPreferences?.edit()?.putString("session_id", sessionCookie.value)?.apply()
+                SecureSessionStore.saveSessionId(sessionCookie.value)
             }
         }
         
         override fun loadForRequest(url: HttpUrl): List<Cookie> {
             val savedCookies = cookieStore[url.host] ?: emptyList()
-            val sessionId = sharedPreferences?.getString("session_id", null)
+            val sessionId = SecureSessionStore.getSessionId()
             
             // Add session_id cookie if we have one
             return if (sessionId != null) {
@@ -58,7 +55,7 @@ object NetworkConfig {
     // Session interceptor to add session_id to headers if cookie is not working
     private val sessionInterceptor = Interceptor { chain ->
         val originalRequest = chain.request()
-        val sessionId = sharedPreferences?.getString("session_id", null)
+        val sessionId = SecureSessionStore.getSessionId()
         
         val newRequest = if (sessionId != null) {
             originalRequest.newBuilder()

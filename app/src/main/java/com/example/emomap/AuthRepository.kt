@@ -1,14 +1,13 @@
 package com.example.emomap
 
 import android.content.Context
-import android.content.SharedPreferences
-import retrofit2.Response
 
 class AuthRepository(context: Context) {
-    
-    private val sharedPreferences: SharedPreferences = 
-        context.getSharedPreferences("emomap_prefs", Context.MODE_PRIVATE)
-    
+
+    init {
+        SecureSessionStore.initialize(context.applicationContext)
+    }
+
     private val apiService = NetworkConfig.apiService
     
     suspend fun login(email: String, password: String): AuthResult {
@@ -72,19 +71,15 @@ class AuthRepository(context: Context) {
     }
     
     private fun saveSessionId(sessionId: String) {
-        sharedPreferences.edit()
-            .putString("session_id", sessionId)
-            .apply()
+        SecureSessionStore.saveSessionId(sessionId)
     }
     
     fun clearSessionId() {
-        sharedPreferences.edit()
-            .remove("session_id")
-            .apply()
+        SecureSessionStore.clearSessionId()
     }
     
     fun getSessionId(): String? {
-        return sharedPreferences.getString("session_id", null)
+        return SecureSessionStore.getSessionId()
     }
     
     fun isLoggedIn(): Boolean {

@@ -246,7 +246,29 @@ class MainActivity : BaseActivity() {
                 map.uiSettings.isRotateGesturesEnabled = false
                 map.uiSettings.isTiltGesturesEnabled = false
 
-                val startPoint = LatLng(55.7558, 37.6176)
+                
+                val startPoint = if (
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_FINE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(
+                        this,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+                        ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+                    if (lastKnownLocation != null) {
+                        LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                    } else {
+                        LatLng(55.7558, 37.6176) // Moscow fallback
+                    }
+                } else {
+                    LatLng(55.7558, 37.6176) // Moscow fallback
+                }
+                
+                // val startPoint = LatLng(55.7558, 37.6176) // Дебаг и показ
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 10.0))
 
                 map.addOnMapClickListener {

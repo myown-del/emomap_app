@@ -10,6 +10,9 @@ class EmoMapApplication : Application() {
 
         MapLibre.getInstance(this)
 
+        // Initialize encrypted session storage
+        SecureSessionStore.initialize(this)
+
         // Initialize NetworkConfig with application context
         NetworkConfig.initialize(this)
     }

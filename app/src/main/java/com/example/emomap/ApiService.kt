@@ -7,6 +7,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ApiService {
     
@@ -39,7 +40,12 @@ interface ApiService {
     suspend fun createEmotion(@Body request: EmotionCreate): Response<EmotionResponse>
     
     @GET("api/emotions/me")
-    suspend fun getUserEmotions(): Response<List<EmotionResponse>>
+    suspend fun getUserEmotions(
+        @Query("min_rating") minRating: Int? = null,
+        @Query("max_rating") maxRating: Int? = null,
+        @Query("date_from") dateFrom: String? = null,
+        @Query("date_to") dateTo: String? = null
+    ): Response<List<EmotionResponse>>
     
     @GET("api/users/me/profile")
     suspend fun getCurrentUser(): Response<UserResponse>
