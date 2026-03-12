@@ -34,6 +34,7 @@ class MapActivity : BaseActivity() {
     private var pendingEmotions: List<EmotionResponse> = emptyList()
     private val emotionMarkers = mutableListOf<Marker>()
     private val emotionByMarkerId = mutableMapOf<Long, EmotionResponse>()
+    private val geocoderLocale = Locale("ru", "RU")
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -316,7 +317,7 @@ class MapActivity : BaseActivity() {
     private fun showEmotionDetails(emotion: EmotionResponse) {
         binding.cardEmotionDetails.visibility = View.VISIBLE
 
-        val geocoder = Geocoder(this, Locale.getDefault())
+        val geocoder = Geocoder(this, geocoderLocale)
         var address = "Coordinates: ${emotion.latitude}, ${emotion.longitude}"
 
         try {

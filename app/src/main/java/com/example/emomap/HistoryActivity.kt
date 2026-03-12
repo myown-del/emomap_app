@@ -437,6 +437,7 @@ class HistoryActivity : BaseActivity() {
 
 class EmotionHistoryAdapter(private val emotions: List<EmotionResponse>) : 
     RecyclerView.Adapter<EmotionHistoryAdapter.ViewHolder>() {
+    private val geocoderLocale = Locale("ru", "RU")
     
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val tvEmotionCircle: TextView = view.findViewById(R.id.tvEmotionCircle)
@@ -466,7 +467,7 @@ class EmotionHistoryAdapter(private val emotions: List<EmotionResponse>) :
         
         // Get full address from coordinates
         val context = holder.itemView.context
-        val geocoder = Geocoder(context, Locale.getDefault())
+        val geocoder = Geocoder(context, geocoderLocale)
         var locationName = "Неизвестное место"
         
         try {
