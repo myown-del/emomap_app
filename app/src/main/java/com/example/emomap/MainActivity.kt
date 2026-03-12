@@ -1,4 +1,4 @@
-package com.example.emomap
+﻿package com.example.emomap
 
 import android.Manifest
 import android.content.Context
@@ -321,17 +321,18 @@ class MainActivity : BaseActivity() {
             } else {
                 Toast.makeText(
                     this,
-                    "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РµРµ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ",
+                    "Не удалось получить текущее местоположение",
                     Toast.LENGTH_SHORT
                 ).show()
             }
         } catch (e: SecurityException) {
             binding.btnChooseLocation.text = getString(R.string.choose_location)
             binding.btnChooseLocation.isEnabled = true
-            Toast.makeText(this, "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёСЏ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Ошибка получения местоположения", Toast.LENGTH_SHORT).show()
         }
     }
-    private fun addMarker(point: LatLng) {
+
+    private fun addMarker(point: LatLng) {
         val map = maplibreMap ?: return
         locationMarker?.remove()
 
@@ -348,7 +349,7 @@ class MainActivity : BaseActivity() {
     private fun saveEmotion() {
         val location = selectedLocation
         if (location == null) {
-            Toast.makeText(this, "Р’С‹Р±РµСЂРёС‚Рµ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ РЅР° РєР°СЂС‚Рµ", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Выберите местоположение на карте", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -374,9 +375,9 @@ class MainActivity : BaseActivity() {
                     clearForm()
                 } else {
                     val errorMessage = when (response.code()) {
-                        401 -> "РќРµРѕР±С…РѕРґРёРјРѕ РІРѕР№С‚Рё РІ СЃРёСЃС‚РµРјСѓ"
-                        422 -> "РќРµРІРµСЂРЅС‹Рµ РґР°РЅРЅС‹Рµ"
-                        else -> "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°: ${response.code()}"
+                        401 -> "Необходимо войти в систему"
+                        422 -> "Неверные данные"
+                        else -> "Ошибка сервера: ${response.code()}"
                     }
                     Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_LONG).show()
                 }
