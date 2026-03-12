@@ -7,25 +7,25 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import com.example.emomap.databinding.ActivityMapPickerBinding
-import org.osmdroid.api.IMapController
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
+import org.maplibre.android.annotations.Marker
+import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 
 class MapPickerActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMapPickerBinding
     private lateinit var mapView: MapView
-    private lateinit var mapController: IMapController
+    private var maplibreMap: MapLibreMap? = null
     private lateinit var locationManager: LocationManager
-    private var selectedLocation: GeoPoint? = null
+    private var selectedLocation: LatLng? = null
     private var locationMarker: Marker? = null
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -42,14 +42,12 @@ class MapPickerActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-
         binding = ActivityMapPickerBinding.inflate(layoutInflater)
         setContentView(binding.root)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         setupToolbar()
-        setupMap()
+        setupMap(savedInstanceState)
         setupActions()
     }
 
@@ -61,47 +59,48 @@ class MapPickerActivity : BaseActivity() {
         }
     }
 
-    private fun setupMap() {
+    private fun setupMap(savedInstanceState: Bundle?) {
         mapView = binding.mapView
-        mapView.setTileSource(TileSourceFactory.MAPNIK)
-        mapController = mapView.controller
-        mapView.setBuiltInZoomControls(true)
-        mapView.setMultiTouchControls(true)
+        mapView.onCreate(savedInstanceState)
+        mapView.getMapAsync { map ->
+            maplibreMap = map
+            map.setStyle(Style.Builder().fromJson(MapConfig.DEFAULT_STYLE_JSON)) {
+                val initialLat = intent.getDoubleExtra(EXTRA_LATITUDE, Double.NaN)
+                val initialLon = intent.getDoubleExtra(EXTRA_LONGITUDE, Double.NaN)
+                val initialPoint = if (!initialLat.isNaN() && !initialLon.isNaN()) {
+                    LatLng(initialLat, initialLon)
+                } else {
+                    LatLng(55.7558, 37.6176)
+                }
 
-        val initialLat = intent.getDoubleExtra(EXTRA_LATITUDE, Double.NaN)
-        val initialLon = intent.getDoubleExtra(EXTRA_LONGITUDE, Double.NaN)
-        val initialPoint = if (!initialLat.isNaN() && !initialLon.isNaN()) {
-            GeoPoint(initialLat, initialLon)
-        } else {
-            GeoPoint(55.7558, 37.6176)
-        }
+                map.moveCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        initialPoint,
+                        if (!initialLat.isNaN()) 15.0 else 12.0
+                    )
+                )
 
-        mapController.setCenter(initialPoint)
-        mapController.setZoom(if (!initialLat.isNaN()) 15.0 else 12.0)
+                if (!initialLat.isNaN() && !initialLon.isNaN()) {
+                    setSelectedLocation(initialPoint)
+                }
 
-        if (!initialLat.isNaN() && !initialLon.isNaN()) {
-            setSelectedLocation(initialPoint)
-        }
-
-        mapView.setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_UP) {
-                val pickedPoint = mapView.projection.fromPixels(
-                    event.x.toInt(),
-                    event.y.toInt()
-                ) as GeoPoint
-                setSelectedLocation(pickedPoint)
+                map.addOnMapClickListener { point ->
+                    setSelectedLocation(point)
+                    true
+                }
             }
-            false
         }
     }
 
     private fun setupActions() {
         binding.btnSaveLocation.setOnClickListener {
             val point = selectedLocation ?: return@setOnClickListener
-            setResult(Activity.RESULT_OK, Intent().apply {
-                putExtra(EXTRA_LATITUDE, point.latitude)
-                putExtra(EXTRA_LONGITUDE, point.longitude)
-            })
+            setResult(
+                Activity.RESULT_OK, Intent().apply {
+                    putExtra(EXTRA_LATITUDE, point.latitude)
+                    putExtra(EXTRA_LONGITUDE, point.longitude)
+                }
+            )
             finish()
         }
 
@@ -110,21 +109,19 @@ class MapPickerActivity : BaseActivity() {
         }
     }
 
-    private fun setSelectedLocation(point: GeoPoint) {
+    private fun setSelectedLocation(point: LatLng) {
+        val map = maplibreMap ?: return
         selectedLocation = point
+        locationMarker?.remove()
+        val markerOptions = MarkerOptions()
+            .position(point)
+            .title(getString(R.string.current_location))
 
-        if (locationMarker == null) {
-            locationMarker = Marker(mapView).apply {
-                icon = resources.getDrawable(R.drawable.ic_location_picker_marker, theme)
-                setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-                mapView.overlays.add(this)
-            }
-        }
+        MapMarkerIconFactory.fromDrawableRes(this, R.drawable.ic_location_picker_marker)
+            ?.let { markerOptions.icon(it) }
 
-        locationMarker?.position = point
-        locationMarker?.title = getString(R.string.current_location)
+        locationMarker = map.addMarker(markerOptions)
         binding.btnSaveLocation.isEnabled = true
-        mapView.invalidate()
     }
 
     private fun moveToCurrentLocation() {
@@ -147,9 +144,8 @@ class MapPickerActivity : BaseActivity() {
             return
         }
 
-        val currentPoint = GeoPoint(lastKnownLocation.latitude, lastKnownLocation.longitude)
-        mapController.setCenter(currentPoint)
-        mapController.setZoom(16.0)
+        val currentPoint = LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
+        maplibreMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPoint, 16.0))
         setSelectedLocation(currentPoint)
     }
 
@@ -167,14 +163,53 @@ class MapPickerActivity : BaseActivity() {
         return hasFineLocation || hasCoarseLocation
     }
 
+    override fun onStart() {
+        super.onStart()
+        if (::mapView.isInitialized) {
+            mapView.onStart()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        if (::mapView.isInitialized) {
+            mapView.onResume()
+        }
     }
 
     override fun onPause() {
+        if (::mapView.isInitialized) {
+            mapView.onPause()
+        }
         super.onPause()
-        mapView.onPause()
+    }
+
+    override fun onStop() {
+        if (::mapView.isInitialized) {
+            mapView.onStop()
+        }
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        if (::mapView.isInitialized) {
+            mapView.onDestroy()
+        }
+        super.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        if (::mapView.isInitialized) {
+            mapView.onLowMemory()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::mapView.isInitialized) {
+            mapView.onSaveInstanceState(outState)
+        }
     }
 
     companion object {
@@ -182,3 +217,4 @@ class MapPickerActivity : BaseActivity() {
         const val EXTRA_LONGITUDE = "extra_longitude"
     }
 }
+

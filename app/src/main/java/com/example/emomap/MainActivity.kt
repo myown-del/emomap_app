@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.view.Menu
 import android.view.View
 import android.widget.SeekBar
@@ -16,21 +15,23 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.emomap.databinding.ActivityMainBinding
 import kotlinx.coroutines.launch
-import org.osmdroid.api.IMapController
-import org.osmdroid.config.Configuration
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
-import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
+import org.maplibre.android.annotations.Marker
+import org.maplibre.android.annotations.MarkerOptions
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
 
 class MainActivity : BaseActivity() {
-    
+
     private lateinit var binding: ActivityMainBinding
     private lateinit var authRepository: AuthRepository
     private lateinit var locationManager: LocationManager
     private lateinit var mapView: MapView
-    private lateinit var mapController: IMapController
-    private var selectedLocation: GeoPoint? = null
+    private var maplibreMap: MapLibreMap? = null
+    private var selectedLocation: LatLng? = null
+    private var locationMarker: Marker? = null
     private var currentRating = 5
 
     private val mapPickerRequest = registerForActivityResult(
@@ -43,14 +44,13 @@ class MainActivity : BaseActivity() {
         val longitude = data.getDoubleExtra(MapPickerActivity.EXTRA_LONGITUDE, Double.NaN)
         if (latitude.isNaN() || longitude.isNaN()) return@registerForActivityResult
 
-        val chosenPoint = GeoPoint(latitude, longitude)
+        val chosenPoint = LatLng(latitude, longitude)
         selectedLocation = chosenPoint
-        mapController.setCenter(chosenPoint)
-        mapController.setZoom(15.0)
+        maplibreMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(chosenPoint, 15.0))
         addMarker(chosenPoint)
         binding.layoutLocationOverlay.visibility = View.GONE
     }
-    
+
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -58,46 +58,45 @@ class MainActivity : BaseActivity() {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
                 getCurrentLocation()
             }
+
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
                 getCurrentLocation()
             }
+
             else -> {
                 Toast.makeText(this, getString(R.string.location_permission_denied), Toast.LENGTH_LONG).show()
             }
         }
     }
-    
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        // Initialize OSMDroid configuration
-        Configuration.getInstance().load(this, PreferenceManager.getDefaultSharedPreferences(this))
-        
+
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         authRepository = AuthRepository(this)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        
+
         // Check if user is logged in
         if (!authRepository.isLoggedIn()) {
             startActivity(Intent(this, LoginActivity::class.java))
             finish()
             return
         }
-        
+
         setupToolbar()
         setupUI()
-        setupMapView()
+        setupMapView(savedInstanceState)
     }
-    
+
     override fun setupToolbar() {
         setSupportActionBar(binding.topBar.toolbar)
         supportActionBar?.setDisplayShowTitleEnabled(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean = false
-    
+
     private fun setupUI() {
         binding.topBar.btnProfile.setOnClickListener {
             startActivity(Intent(this, ProfileActivity::class.java))
@@ -112,9 +111,7 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupMapPickerEntry() {
-        binding.mapPreviewContainer.setOnClickListener {
-            openMapPicker()
-        }
+        // Location can be set directly on the preview map.
     }
 
     private fun openMapPicker() {
@@ -126,35 +123,35 @@ class MainActivity : BaseActivity() {
         }
         mapPickerRequest.launch(intent)
     }
-    
+
     private fun setupEmotionFaces() {
         binding.layoutSadFace.setOnClickListener {
             selectEmotion(1, binding.tvSadFace)
         }
-        
+
         binding.layoutNeutralFace.setOnClickListener {
             selectEmotion(5, binding.tvNeutralFace)
         }
-        
+
         binding.layoutHappyFace.setOnClickListener {
             selectEmotion(10, binding.tvHappyFace)
         }
     }
-    
+
     private fun selectEmotion(rating: Int, selectedView: View) {
         currentRating = rating
         binding.seekBarRating.progress = rating
         binding.tvRatingValue.text = rating.toString()
-        
+
         // Reset all face backgrounds
         resetEmotionFaces()
-        
+
         // Highlight selected face
         selectedView.alpha = 1.0f
         selectedView.scaleX = 1.1f
         selectedView.scaleY = 1.1f
     }
-    
+
     private fun resetEmotionFaces() {
         listOf(binding.tvSadFace, binding.tvNeutralFace, binding.tvHappyFace).forEach { face ->
             face.alpha = 0.7f
@@ -162,7 +159,7 @@ class MainActivity : BaseActivity() {
             face.scaleY = 1.0f
         }
     }
-    
+
     private fun setupRatingSlider() {
         binding.seekBarRating.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -172,26 +169,28 @@ class MainActivity : BaseActivity() {
                     updateEmotionFaceBasedOnRating(currentRating)
                 }
             }
-            
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
     }
-    
+
     private fun updateEmotionFaceBasedOnRating(rating: Int) {
         resetEmotionFaces()
-        
+
         when {
             rating <= 3 -> {
                 binding.tvSadFace.alpha = 1.0f
                 binding.tvSadFace.scaleX = 1.1f
                 binding.tvSadFace.scaleY = 1.1f
             }
+
             rating <= 7 -> {
                 binding.tvNeutralFace.alpha = 1.0f
                 binding.tvNeutralFace.scaleX = 1.1f
                 binding.tvNeutralFace.scaleY = 1.1f
             }
+
             else -> {
                 binding.tvHappyFace.alpha = 1.0f
                 binding.tvHappyFace.scaleX = 1.1f
@@ -199,19 +198,19 @@ class MainActivity : BaseActivity() {
             }
         }
     }
-    
+
     private fun setupLocationButton() {
         binding.btnChooseLocation.setOnClickListener {
             openMapPicker()
         }
     }
-    
+
     private fun setupSaveButton() {
         binding.btnSaveEmotion.setOnClickListener {
             saveEmotion()
         }
     }
-    
+
     private fun setupBottomNavigation() {
         binding.bottomNavigation.selectedItemId = R.id.nav_home
         binding.bottomNavigation.setOnItemSelectedListener { item ->
@@ -222,130 +221,157 @@ class MainActivity : BaseActivity() {
                     finish()
                     true
                 }
+
                 R.id.nav_history -> {
                     startActivity(Intent(this, HistoryActivity::class.java))
                     finish()
                     true
                 }
+
                 else -> false
             }
         }
     }
-    
-    private fun setupMapView() {
+
+    private fun setupMapView(savedInstanceState: Bundle?) {
         mapView = binding.mapView
-        mapView.setTileSource(TileSourceFactory.MAPNIK)
-        mapController = mapView.controller
-        
-        // Set initial position (Moscow)
-        val startPoint = GeoPoint(55.7558, 37.6176)
-        mapController.setZoom(10.0)
-        mapController.setCenter(startPoint)
-        
-        // Preview-only mini map. Tap opens full-screen picker.
-        mapView.setBuiltInZoomControls(false)
-        mapView.setMultiTouchControls(false)
-        mapView.setOnTouchListener { _, event ->
-            if (event.action == android.view.MotionEvent.ACTION_UP) {
-                openMapPicker()
+        mapView.onCreate(savedInstanceState)
+        mapView.getMapAsync { map ->
+            maplibreMap = map
+            map.setStyle(Style.Builder().fromJson(MapConfig.DEFAULT_STYLE_JSON)) {
+                map.uiSettings.setAllGesturesEnabled(true)
+                map.uiSettings.isCompassEnabled = false
+                map.uiSettings.isRotateGesturesEnabled = false
+                map.uiSettings.isTiltGesturesEnabled = false
+
+                val startPoint = LatLng(55.7558, 37.6176)
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 10.0))
+
+                map.addOnMapClickListener { point ->
+                    selectedLocation = point
+                    addMarker(point)
+                    binding.layoutLocationOverlay.visibility = View.GONE
+                    true
+                }
+
+                selectedLocation?.let { selectedPoint ->
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(selectedPoint, 15.0))
+                    addMarker(selectedPoint)
+                    binding.layoutLocationOverlay.visibility = View.GONE
+                }
             }
-            true
+        }
+        mapView.setOnTouchListener { view, _ ->
+            view.parent?.requestDisallowInterceptTouchEvent(true)
+            false
         }
     }
-    
+
     private fun requestLocationPermission() {
         when {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED -> {
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED -> {
                 getCurrentLocation()
             }
+
             else -> {
-                locationPermissionRequest.launch(arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ))
+                locationPermissionRequest.launch(
+                    arrayOf(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    )
+                )
             }
         }
     }
-    
+
     private fun getCurrentLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             return
         }
-        
+
         binding.btnChooseLocation.text = getString(R.string.getting_location)
         binding.btnChooseLocation.isEnabled = false
-        
+
         try {
             val lastKnownLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
                 ?: locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-            
+
             binding.btnChooseLocation.text = getString(R.string.choose_location)
             binding.btnChooseLocation.isEnabled = true
-            
+
             if (lastKnownLocation != null) {
-                val currentLatLng = GeoPoint(lastKnownLocation.latitude, lastKnownLocation.longitude)
+                val currentLatLng = LatLng(lastKnownLocation.latitude, lastKnownLocation.longitude)
                 selectedLocation = currentLatLng
-                
-                mapController.setCenter(currentLatLng)
-                mapController.setZoom(15.0)
+
+                maplibreMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 15.0))
                 addMarker(currentLatLng)
                 binding.layoutLocationOverlay.visibility = View.GONE
             } else {
-                Toast.makeText(this, "Не удалось получить текущее местоположение", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this,
+                    "РќРµ СѓРґР°Р»РѕСЃСЊ РїРѕР»СѓС‡РёС‚СЊ С‚РµРєСѓС‰РµРµ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         } catch (e: SecurityException) {
             binding.btnChooseLocation.text = getString(R.string.choose_location)
             binding.btnChooseLocation.isEnabled = true
-            Toast.makeText(this, "Ошибка получения местоположения", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёСЏ", Toast.LENGTH_SHORT).show()
         }
     }
-    
-    private fun addMarker(point: GeoPoint) {
-        // Clear existing markers
-        mapView.overlays.clear()
-        
-        val marker = Marker(mapView)
-        marker.position = point
-        marker.title = "Выбранное место"
-        marker.icon = resources.getDrawable(R.drawable.ic_location_picker_marker, theme)
-        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
-        
-        mapView.overlays.add(marker)
-        mapView.invalidate()
+    private fun addMarker(point: LatLng) {
+        val map = maplibreMap ?: return
+        locationMarker?.remove()
+
+        val markerOptions = MarkerOptions()
+            .position(point)
+            .title("Selected location")
+
+        MapMarkerIconFactory.fromDrawableRes(this, R.drawable.ic_location_picker_marker)
+            ?.let { markerOptions.icon(it) }
+
+        locationMarker = map.addMarker(markerOptions)
     }
-    
+
     private fun saveEmotion() {
         val location = selectedLocation
         if (location == null) {
-            Toast.makeText(this, "Выберите местоположение на карте", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Р’С‹Р±РµСЂРёС‚Рµ РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ РЅР° РєР°СЂС‚Рµ", Toast.LENGTH_SHORT).show()
             return
         }
-        
+
         val comment = binding.etComment.text.toString().trim().takeIf { it.isNotEmpty() }
-        
+
         val emotionCreate = EmotionCreate(
             latitude = location.latitude,
             longitude = location.longitude,
             rating = currentRating,
             comment = comment
         )
-        
+
         setLoadingState(true)
-        
+
         lifecycleScope.launch {
             try {
                 val response = NetworkConfig.apiService.createEmotion(emotionCreate)
-                
+
                 setLoadingState(false)
-                
+
                 if (response.isSuccessful) {
                     Toast.makeText(this@MainActivity, getString(R.string.emotion_saved), Toast.LENGTH_SHORT).show()
                     clearForm()
                 } else {
                     val errorMessage = when (response.code()) {
-                        401 -> "Необходимо войти в систему"
-                        422 -> "Неверные данные"
-                        else -> "Ошибка сервера: ${response.code()}"
+                        401 -> "РќРµРѕР±С…РѕРґРёРјРѕ РІРѕР№С‚Рё РІ СЃРёСЃС‚РµРјСѓ"
+                        422 -> "РќРµРІРµСЂРЅС‹Рµ РґР°РЅРЅС‹Рµ"
+                        else -> "РћС€РёР±РєР° СЃРµСЂРІРµСЂР°: ${response.code()}"
                     }
                     Toast.makeText(this@MainActivity, errorMessage, Toast.LENGTH_LONG).show()
                 }
@@ -355,33 +381,75 @@ class MainActivity : BaseActivity() {
             }
         }
     }
-    
+
     private fun clearForm() {
         binding.etComment.text?.clear()
         binding.seekBarRating.progress = 5
         currentRating = 5
         binding.tvRatingValue.text = "5"
         selectedLocation = null
-        mapView.overlays.clear()
-        mapView.invalidate()
+        locationMarker?.remove()
+        locationMarker = null
         binding.layoutLocationOverlay.visibility = View.VISIBLE
         resetEmotionFaces()
         updateEmotionFaceBasedOnRating(5)
     }
-    
+
     private fun setLoadingState(isLoading: Boolean) {
         binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
         binding.btnSaveEmotion.isEnabled = !isLoading
         binding.btnChooseLocation.isEnabled = !isLoading
     }
-    
+
+    override fun onStart() {
+        super.onStart()
+        if (::mapView.isInitialized) {
+            mapView.onStart()
+        }
+    }
+
     override fun onResume() {
         super.onResume()
-        mapView.onResume()
+        if (::mapView.isInitialized) {
+            mapView.onResume()
+        }
     }
-    
+
     override fun onPause() {
+        if (::mapView.isInitialized) {
+            mapView.onPause()
+        }
         super.onPause()
-        mapView.onPause()
+    }
+
+    override fun onStop() {
+        if (::mapView.isInitialized) {
+            mapView.onStop()
+        }
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        if (::mapView.isInitialized) {
+            mapView.onDestroy()
+        }
+        super.onDestroy()
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        if (::mapView.isInitialized) {
+            mapView.onLowMemory()
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        if (::mapView.isInitialized) {
+            mapView.onSaveInstanceState(outState)
+        }
     }
 }
+
+
+

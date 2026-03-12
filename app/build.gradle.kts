@@ -68,8 +68,8 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     
-    // OpenStreetMap (OSMDroid) - Free alternative to Google Maps
-    implementation("org.osmdroid:osmdroid-android:6.1.17")
+    // MapLibre Native SDK
+    implementation("org.maplibre.gl:android-sdk:12.3.1")
     
     // Fragment Navigation
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.6")
