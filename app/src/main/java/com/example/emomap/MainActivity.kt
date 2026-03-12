@@ -111,7 +111,9 @@ class MainActivity : BaseActivity() {
     }
 
     private fun setupMapPickerEntry() {
-        // Location can be set directly on the preview map.
+        binding.mapPreviewContainer.setOnClickListener {
+            openMapPicker()
+        }
     }
 
     private fun openMapPicker() {
@@ -247,10 +249,13 @@ class MainActivity : BaseActivity() {
                 val startPoint = LatLng(55.7558, 37.6176)
                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(startPoint, 10.0))
 
-                map.addOnMapClickListener { point ->
-                    selectedLocation = point
-                    addMarker(point)
-                    binding.layoutLocationOverlay.visibility = View.GONE
+                map.addOnMapClickListener {
+                    openMapPicker()
+                    true
+                }
+
+                map.setOnMarkerClickListener {
+                    openMapPicker()
                     true
                 }
 
